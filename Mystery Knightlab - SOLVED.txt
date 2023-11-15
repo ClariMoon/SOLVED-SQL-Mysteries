@@ -1,0 +1,75 @@
+*Mystery Knightlab - SOLVED*
+
+mystery.knightlab.com
+
+SELECT *
+FROM crime_scene_report
+WHERE type = 'murder' AND city = 'SQL City' AND crime_scene_report.date = '20180115'
+
+-- Witness 1: lives at the last house on "Northwestern Dr"
+SELECT id, name, address_street_name, transcript
+FROM person
+JOIN interview
+ON person.id = interview.person_id
+WHERE address_street_name LIKE '%Northwestern Dr%'
+ORDER BY address_number DESC
+LIMIT 1
+
+-- The KILLER:
+SELECT drivers_license.id AS driver_id, 
+	person.id,
+	get_fit_now_member.name,
+	interview.transcript
+FROM drivers_license
+JOIN person
+ON person.license_id = drivers_license.id
+JOIN get_fit_now_member
+ON person.id = get_fit_now_member.person_id
+JOIN interview
+ON person.id = interview.person_id
+WHERE plate_number LIKE '%H42W%' AND gender = 'male'
+
+--The Woman who hired the Killer:
+SELECT 
+	person.name,
+	person.id,
+	drivers_license.id AS driver_id,
+	facebook_event_checkin.person_id, 
+	facebook_event_checkin.event_name, 
+	COUNT (*) AS number_events
+FROM drivers_license
+JOIN person 
+ON person.license_id = drivers_license.id
+JOIN facebook_event_checkin
+ON facebook_event_checkin.person_id = person.id
+WHERE hair_color = 'red' AND gender = 'female' 
+	AND car_make = 'Tesla' AND car_model LIKE '%S%'
+	
+	
+-- Witness 2: Annabel, lives somewhere on "Franklin Ave".
+SELECT id, name, address_street_name, transcript
+FROM person 
+JOIN interview
+ON person.id = interview.person_id
+WHERE name LIKE '%Annabel%' AND address_street_name LIKE '%Franklin Ave%'
+
+-- Killer in the Gym with witness 2
+SELECT * 
+FROM facebook_event_checkin
+WHERE facebook_event_checkin.date = '20180109'
+
+--Conclusions:
+/* 
+	Killer likes to work out in the gym, HE has a "Get Fit Now Gym" bag
+	Killer is a gold member of the Gym. His membership number starts wit '48Z'
+	Killer entered in a car with a plate that included "H42W"
+	Killer was in the Gym at '20180109'
+	THE KILLER IS Jeremy Bowers!!
+	
+	Jeremy Bowers was hired by a woman:
+	She's around 5'5" (65") or 5'7" (67")
+	She has red hair and she drives a Tesla Model S
+	She attended the SQL Symphony Concert 3 times in December 2017
+	THE WOMAN IS Miranda Priestly!!
+	
+*/
